@@ -1,4 +1,6 @@
-﻿namespace GreenProducts.Core.Products;
+﻿using System.Collections;
+
+namespace GreenProducts.Core.Products;
 
 /// <summary>
 /// A classification is a value with a display name that falls within some specific grouping/category.
@@ -12,7 +14,10 @@ public class ProductClassification
     public required string Type { get; set; }
     public required string Value { get; set; }
     public required string DisplayName { get; set; }
-    
-    public bool IsColour => Type == "COLOUR";
-    public bool IsProductType => Type == "PRODUCT_TYPE";
+
+    public static class Types
+    {
+        public const string Colour = "COLOUR";
+        public const string ProductType = "PRODUCT_TYPE";
+    }
 }

@@ -19,6 +19,8 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
         productModel
             .HasMany(product => product.AvailableColours)
             .WithMany();
+        productModel.Navigation(product => product.ProductType).AutoInclude();
+        productModel.Navigation(product => product.AvailableColours).AutoInclude();
         
         var productClassificationModel = modelBuilder.Entity<ProductClassification>();
         productClassificationModel.HasKey(productClassification => productClassification.Id);

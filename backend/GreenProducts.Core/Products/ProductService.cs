@@ -10,43 +10,47 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     public async Task<Product> GetProductDetails(Guid id, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetProductDetails(id, cancellationToken);
-        return product ?? throw new NotFoundException{ Id = id };
+        return product ?? throw new KeyNotFoundException($"Product with id {id} not found");
     }
 
     public async Task<Product> AddProduct(string name, Guid productTypeId, ICollection<Guid> colourIds, CancellationToken cancellationToken = default)
     {
-        var relevantClassifications = (await productRepository.GetProductClassifications(colourIds.Distinct().Prepend(productTypeId), cancellationToken)).ToArray();
-        
-        // Ensure colour classification is valid
-        var desiredColourClassifications = relevantClassifications.Where(c => colourIds.Contains(c.Id)).ToList();
-        var invalidColours = desiredColourClassifications.Where(c => !c.IsColour).ToArray();
-        if (invalidColours.Any())
-        {
-            throw new ProductValidationException
-            {
-                Reasons = invalidColours.Select(c => $"Classification {c.Id} [{c.Value}] is not a valid colour classification").ToArray()
-            };
-        }
-        
-        // Ensure product type classification is valid
-        var desiredProductTypeClassification = relevantClassifications.SingleOrDefault(c => c.Id == productTypeId);
-        if (desiredProductTypeClassification is null || !desiredProductTypeClassification.IsProductType)
-        {
-            throw new ProductValidationException
-            {
-                Reasons = [$"Classification {productTypeId} [{desiredProductTypeClassification?.Value}] is not a valid product type classification"]
-            };
-        }
+        var colourClassifications = await GetProductClassificationDetails(ProductClassification.Types.Colour, colourIds, cancellationToken);
+        var productTypeClassification = (await GetProductClassificationDetails(ProductClassification.Types.ProductType, [productTypeId], cancellationToken)).Single();
         
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = name,
-            ProductType = desiredProductTypeClassification,
-            AvailableColours = desiredColourClassifications,
+            ProductType = productTypeClassification,
+            AvailableColours = colourClassifications.ToList(),
             CreatedOn = timeProvider.GetUtcNow()
         };
 
-        return await productRepository.AddProduct(product, cancellationToken);
+        var created = await productRepository.AddProduct(product, cancellationToken);
+        await productRepository.Save(cancellationToken);
+        return created;
+    }
+
+    public async Task<PaginatedResponse<ProductClassification>> GetProductClassifications(int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        return await productRepository.GetProductClassifications(page, pageSize, cancellationToken);
+    }
+    
+    private async Task<IEnumerable<ProductClassification>> GetProductClassificationDetails(string desiredType, ICollection<Guid> classificationIds, CancellationToken cancellationToken = default)
+    {
+        var classifications = await productRepository.GetProductClassificationDetails(classificationIds, cancellationToken);
+        
+        var invalidClassifications = classificationIds
+            .Select(classificationId => new { Id = classificationId, Classification = classifications.SingleOrDefault(classification => classification.Id == classificationId)})
+            .Where(match => match.Classification is null || match.Classification.Type != desiredType).ToArray();
+        if (invalidClassifications.Any())
+        {
+            throw new ArgumentOutOfRangeException(
+                $"Classifications {string.Join(", ", invalidClassifications.Select(c => c.Id))} do not exist or do not match type {desiredType}");
+        }
+        
+        return classifications;
     }
 }

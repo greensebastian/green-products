@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 using Xunit;
 
@@ -41,6 +43,11 @@ public class HostFixture : IAsyncLifetime
         
         WebApplication = builder.Build();
         WebApplication.AddGreenProducts();
+        
+        await using var scope = WebApplication.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GreenProductsDbContext>();
+        await dbContext.Database.MigrateAsync();
+        
         await WebApplication.StartAsync();
     }
 
