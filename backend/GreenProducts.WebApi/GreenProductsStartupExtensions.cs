@@ -69,7 +69,7 @@ public static class GreenProductsStartupExtensions
     private static WebApplication MapSeedEndpoint(this WebApplication app)
     {
         app.MapPut("/seed",
-            async ([FromServices] GreenProductsDbContext context, CancellationToken cancellationToken) =>
+            async ([FromServices] GreenProductsDbContext context, [FromServices] TimeProvider timeProvider, CancellationToken cancellationToken) =>
             {
                 var classifications = new List<ProductClassification>
                 {
@@ -78,42 +78,48 @@ public static class GreenProductsStartupExtensions
                         Id = Guid.Parse("1d4fe195-622e-46c6-ae47-39e7d83154a9"),
                         Type = ProductClassification.Types.ProductType,
                         Value = "CHAIR",
-                        DisplayName = "Chair"
+                        DisplayName = "Chair",
+                        CreatedOn = timeProvider.GetUtcNow()
                     },
                     new()
                     {
                         Id = Guid.Parse("b5c64c7f-7055-4aa0-b8a4-14568fcff4fd"),
                         Type = ProductClassification.Types.ProductType,
                         Value = "PLANT",
-                        DisplayName = "Plant"
+                        DisplayName = "Plant",
+                        CreatedOn = timeProvider.GetUtcNow()
                     },
                     new()
                     {
                         Id = Guid.Parse("71b707ab-2ab3-42b6-8e29-ba91f19181f9"),
                         Type = ProductClassification.Types.ProductType,
                         Value = "DECORATION",
-                        DisplayName = "Decoration"
+                        DisplayName = "Decoration",
+                        CreatedOn = timeProvider.GetUtcNow()
                     },
                     new()
                     {
                         Id = Guid.Parse("a6d1a6fe-73fa-4eef-88d0-c1cd58f87f6e"),
                         Type = ProductClassification.Types.Colour,
                         Value = "BIRCH",
-                        DisplayName = "Birch tree"
+                        DisplayName = "Birch tree",
+                        CreatedOn = timeProvider.GetUtcNow()
                     },
                     new()
                     {
                         Id = Guid.Parse("ac5d2362-6e12-4ff7-9b21-c2dc164b8d14"),
                         Type = ProductClassification.Types.Colour,
                         Value = "NAVY",
-                        DisplayName = "Navy blue"
+                        DisplayName = "Navy blue",
+                        CreatedOn = timeProvider.GetUtcNow()
                     },
                     new()
                     {
                         Id = Guid.Parse("0f2b7812-766a-41f9-a928-b6c259706d7f"),
                         Type = ProductClassification.Types.Colour,
                         Value = "YELLOW",
-                        DisplayName = "Yellow"
+                        DisplayName = "Yellow",
+                        CreatedOn = timeProvider.GetUtcNow()
                     }
                 };
                 foreach (var classification in classifications)

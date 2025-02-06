@@ -39,6 +39,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
     {
         var totalCount = await context.ProductClassifications.CountAsync(cancellationToken);
         var resultItems = await context.ProductClassifications
+            .OrderBy(productClassification => productClassification.CreatedOn)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

@@ -14,6 +14,7 @@ public class ProductClassification
     public required string Type { get; set; }
     public required string Value { get; set; }
     public required string DisplayName { get; set; }
+    public required DateTimeOffset CreatedOn { get; init; }
 
     public static class Types
     {

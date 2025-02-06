@@ -26,5 +26,6 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
         productClassificationModel.HasKey(productClassification => productClassification.Id);
         productClassificationModel.HasIndex(productClassification => productClassification.Type);
         productClassificationModel.HasIndex(productClassification => new { productClassification.Type, productClassification.Value });
+        productClassificationModel.HasIndex(productClassification => productClassification.CreatedOn);
     }
 }
