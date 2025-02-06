@@ -23,7 +23,7 @@ public class HostFixture : IAsyncLifetime
     // Skipping nullability check here as it is created as part of the async lifetime
     public WebApplication WebApplication { get; private set; } = null!;
     private PostgreSqlContainer PostgreSqlContainer { get; } = new PostgreSqlBuilder()
-        .WithDatabase("green-products")
+        .WithDatabase("green_products")
         .WithUsername("root")
         .WithPassword("password")
         .Build();
@@ -35,7 +35,7 @@ public class HostFixture : IAsyncLifetime
         var builder = WebApplication.CreateBuilder();
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            { "ConnectionStrings:PostgreSqlDatabase", PostgreSqlContainer.GetConnectionString() }
+            { "ConnectionStrings:GreenProductsDbContext", PostgreSqlContainer.GetConnectionString() }
         });
         builder.AddGreenProducts();
         

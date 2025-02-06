@@ -1,10 +1,15 @@
-﻿namespace GreenProducts.WebApi;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace GreenProducts.WebApi;
 
 public static class ApplicationInitializationExtensions
 {
     public static WebApplicationBuilder AddGreenProducts(this WebApplicationBuilder builder)
     {
         builder.Services.AddOpenApi();
+        
+        builder.Services.AddDbContextPool<GreenProductsDbContext>(opt => 
+            opt.UseNpgsql(builder.Configuration.GetConnectionString("GreenProductsDbContext")));
         return builder;
     }
 
