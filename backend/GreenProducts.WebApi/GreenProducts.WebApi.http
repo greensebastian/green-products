@@ -1,6 +1,0 @@
-@GreenProducts.WebApi_HostAddress = http://localhost:5068
-
-GET {{GreenProducts.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
