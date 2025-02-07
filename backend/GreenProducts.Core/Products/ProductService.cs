@@ -15,16 +15,16 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
 
     public async Task<Product> AddProduct(string name, Guid productTypeId, ICollection<Guid> colourIds, CancellationToken cancellationToken = default)
     {
-        var colourClassifications = await GetProductClassificationDetails(ProductClassification.Types.Colour, colourIds, cancellationToken);
-        var productTypeClassification = (await GetProductClassificationDetails(ProductClassification.Types.ProductType, [productTypeId], cancellationToken)).Single();
-        
+        var colourClassifications = await GetNotEmptyProductClassificationDetails(ProductClassification.Types.Colour, colourIds, cancellationToken);
+        var productTypeClassification = (await GetNotEmptyProductClassificationDetails(ProductClassification.Types.ProductType, [productTypeId], cancellationToken)).Single();
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = name,
             ProductType = productTypeClassification,
             AvailableColours = colourClassifications.ToList(),
-            CreatedOn = timeProvider.GetUtcNow()
+            CreatedOn = timeProvider.GetUtcNow().Truncate(TimeSpan.TicksPerMillisecond)
         };
 
         var created = await productRepository.AddProduct(product, cancellationToken);
@@ -37,20 +37,24 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     {
         return await productRepository.GetProductClassifications(page, pageSize, cancellationToken);
     }
-    
-    private async Task<IEnumerable<ProductClassification>> GetProductClassificationDetails(string desiredType, ICollection<Guid> classificationIds, CancellationToken cancellationToken = default)
+
+    private async Task<ICollection<ProductClassification>> GetNotEmptyProductClassificationDetails(string desiredType, ICollection<Guid> classificationIds, CancellationToken cancellationToken = default)
     {
-        var classifications = await productRepository.GetProductClassificationDetails(classificationIds, cancellationToken);
-        
+        var classifications = (await productRepository.GetProductClassificationDetails(classificationIds, cancellationToken)).ToArray();
+
+        if (!classifications.Any())
+        {
+            throw new ArgumentException($"Query for classifications {string.Join(", ", classificationIds)} of type {desiredType} returned no classifications", nameof(classificationIds));
+        }
+
         var invalidClassifications = classificationIds
-            .Select(classificationId => new { Id = classificationId, Classification = classifications.SingleOrDefault(classification => classification.Id == classificationId)})
+            .Select(classificationId => new { Id = classificationId, Classification = classifications.SingleOrDefault(classification => classification.Id == classificationId) })
             .Where(match => match.Classification is null || match.Classification.Type != desiredType).ToArray();
         if (invalidClassifications.Any())
         {
-            throw new ArgumentOutOfRangeException(
-                $"Classifications {string.Join(", ", invalidClassifications.Select(c => c.Id))} do not exist or do not match type {desiredType}");
+            throw new ArgumentOutOfRangeException(nameof(classificationIds), $"Classifications {string.Join(", ", invalidClassifications.Select(c => c.Id))} do not exist or do not match type {desiredType}");
         }
-        
+
         return classifications;
     }
 }

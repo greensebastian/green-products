@@ -7,7 +7,7 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
 {
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductClassification> ProductClassifications { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var productModel = modelBuilder.Entity<Product>();
@@ -21,7 +21,7 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
             .WithMany();
         productModel.Navigation(product => product.ProductType).AutoInclude();
         productModel.Navigation(product => product.AvailableColours).AutoInclude();
-        
+
         var productClassificationModel = modelBuilder.Entity<ProductClassification>();
         productClassificationModel.HasKey(productClassification => productClassification.Id);
         productClassificationModel.HasIndex(productClassification => productClassification.Type);

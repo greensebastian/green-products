@@ -4,22 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GreenProducts.WebApi;
 
-public static class GreenProductsStartupExtensions
+public static class StartupExtensions
 {
     public static WebApplicationBuilder AddGreenProducts(this WebApplicationBuilder builder)
     {
         builder.Services.AddOpenApi();
-        
-        builder.Services.AddDbContextPool<GreenProductsDbContext>(opt => 
+
+        builder.Services.AddDbContextPool<GreenProductsDbContext>(opt =>
             opt.UseNpgsql(builder.Configuration.GetConnectionString("GreenProductsDbContext")));
-        
+
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
         builder.Services.AddScoped<ProductService>();
-        
+
         builder.Services.AddSingleton(TimeProvider.System);
 
         builder.Services.AddProblemDetails();
-        
+
         return builder;
     }
 
@@ -35,7 +35,7 @@ public static class GreenProductsStartupExtensions
         {
             app.UseHttpsRedirection();
         }
-        
+
         app.MapProductEndpoints();
         app.MapSeedEndpoint();
         return app;
@@ -57,15 +57,21 @@ public static class GreenProductsStartupExtensions
         app.MapGet("/products/{id}",
             async ([FromServices] ProductService productService, CancellationToken cancellationToken, Guid id) =>
             await productService.GetProductDetails(id, cancellationToken));
-        
+
         app.MapGet("/products/classifications",
             async ([FromServices] ProductService productService, CancellationToken cancellationToken, int page = 1,
                     int pageSize = 10) =>
                 await productService.GetProductClassifications(page, pageSize, cancellationToken));
-        
+
         return app;
     }
-    
+
+    /// <summary>
+    /// Creates a /seed endpoint to populate database with classifications to use when creating products.
+    /// Would not expose publicly in a regular application, only used here for simplicity in testing and showing work.
+    /// </summary>
+    /// <param name="app">WebApplication instance to map the /seed endpoint to</param>
+    /// <returns>The WebApplication with the route /seed configured</returns>
     private static WebApplication MapSeedEndpoint(this WebApplication app)
     {
         app.MapPut("/seed",
@@ -136,7 +142,7 @@ public static class GreenProductsStartupExtensions
                 }
                 await context.SaveChangesAsync(cancellationToken);
             });
-        
+
         return app;
     }
 }

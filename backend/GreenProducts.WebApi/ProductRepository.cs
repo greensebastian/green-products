@@ -14,7 +14,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
-        
+
         return new PaginatedResponse<Product>
         {
             Items = resultItems,
@@ -34,7 +34,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
         context.Products.Add(product);
         return Task.FromResult(product);
     }
-    
+
     public async Task<PaginatedResponse<ProductClassification>> GetProductClassifications(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var totalCount = await context.ProductClassifications.CountAsync(cancellationToken);
@@ -43,7 +43,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
-        
+
         return new PaginatedResponse<ProductClassification>
         {
             Items = resultItems,
