@@ -57,7 +57,7 @@ public class WebApiTests(HostFixture hostFixture)
         product.ShouldNotBeNull();
         product.Name.ShouldBe("LANDSKRONA");
         product.ProductType.Id.ShouldBe(productTypeId);
-        product.AvailableColours.Select(pc => pc.Id).ShouldHaveUnordered(colourIds);
+        product.AvailableColours.Select(pc => pc.Id).ShouldBeEquivalentToUnordered(colourIds);
         
         queryProduct.ShouldBeEquivalentTo(product);
         getByIdProduct.ShouldBeEquivalentTo(product);

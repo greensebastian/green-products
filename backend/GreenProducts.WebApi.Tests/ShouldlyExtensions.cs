@@ -4,7 +4,7 @@ namespace GreenProducts.WebApi.Tests;
 
 public static class ShouldlyExtensions
 {
-    public static void ShouldHaveUnordered<T>(this IEnumerable<T> actual, IEnumerable<T> expected)
+    public static void ShouldBeEquivalentToUnordered<T>(this IEnumerable<T> actual, IEnumerable<T> expected)
     {
         var actualEnumerated = actual.ToList();
         var expectedEnumerated = expected.ToList();
