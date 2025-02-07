@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using GreenProducts.WebApi.Infrastructure;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,9 +18,8 @@ public class HostFixtureCollection : ICollectionFixture<HostFixture>
 
 /// <summary>
 /// Reusable fixture which:
-/// Launches and migrates a postgres instance in docker.
+/// Launches, migrates, and seeds a postgres instance in docker.
 /// Launches the application and configures it to connect to said postgres instance.
-/// Migrates database and seeds with basic entities.
 /// </summary>
 public class HostFixture : IAsyncLifetime
 {

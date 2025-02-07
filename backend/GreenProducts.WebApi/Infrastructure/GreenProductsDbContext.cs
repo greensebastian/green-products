@@ -1,7 +1,7 @@
 ﻿using GreenProducts.Core.Products;
 using Microsoft.EntityFrameworkCore;
 
-namespace GreenProducts.WebApi;
+namespace GreenProducts.WebApi.Infrastructure;
 
 public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> options) : DbContext(options)
 {
