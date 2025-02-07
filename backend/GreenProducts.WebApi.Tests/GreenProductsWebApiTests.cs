@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using GreenProducts.Core;
 using GreenProducts.Core.Products;
+using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Xunit;
 
@@ -57,6 +58,24 @@ public class GreenProductsWebApiTests(HostFixture hostFixture)
         
         queryProduct.ShouldBeEquivalentTo(product);
         getByIdProduct.ShouldBeEquivalentTo(product);
+    }
+    
+    [Theory]
+    [InlineData("00000000-0000-0000-0000-000000000000", "", 400)]
+    public async Task Application_CreateInvalidProduct_ReturnsCorrectStatusCodeAndProblemDetails(string serializedProductTypeId, string commaSeparatedColourIds, int expectedStatusCode)
+    {
+        // Arrange
+        var productTypeId = Guid.Parse(serializedProductTypeId);
+        var colourIds = commaSeparatedColourIds.Split(",").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Guid.Parse).ToArray();
+
+        // Act
+        var response = await TestClient.PostAsJsonAsync("/products", new CreateProductRequest("INVALID_PRODUCT", productTypeId, colourIds));
+        var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+
+        // Assert
+        ((int)response.StatusCode).ShouldBe(expectedStatusCode);
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(expectedStatusCode);
     }
 
     private async Task<PaginatedResponse<ProductClassification>> GetProductClassificationsAsync()

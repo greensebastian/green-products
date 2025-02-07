@@ -10,7 +10,7 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     public async Task<Product> GetProductDetails(Guid id, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetProductDetails(id, cancellationToken);
-        return product ?? throw new KeyNotFoundException($"Product with id {id} not found");
+        return product ?? throw new ProductNotFoundException($"Product with id {id} not found");
     }
 
     public async Task<Product> AddProduct(string name, Guid productTypeId, ICollection<Guid> colourIds, CancellationToken cancellationToken = default)
@@ -44,7 +44,7 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
 
         if (!classifications.Any())
         {
-            throw new ArgumentException($"Query for classifications {string.Join(", ", classificationIds)} of type {desiredType} returned no classifications", nameof(classificationIds));
+            throw new ProductValidationException($"Query for classifications [{string.Join(", ", classificationIds)}] of type {desiredType} returned no classifications");
         }
 
         var invalidClassifications = classificationIds
@@ -52,7 +52,7 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
             .Where(match => match.Classification is null || match.Classification.Type != desiredType).ToArray();
         if (invalidClassifications.Any())
         {
-            throw new ArgumentOutOfRangeException(nameof(classificationIds), $"Classifications {string.Join(", ", invalidClassifications.Select(c => c.Id))} do not exist or do not match type {desiredType}");
+            throw new ProductValidationException($"Classifications [{string.Join(", ", invalidClassifications.Select(c => c.Id))}] do not exist or do not match type {desiredType}");
         }
 
         return classifications;

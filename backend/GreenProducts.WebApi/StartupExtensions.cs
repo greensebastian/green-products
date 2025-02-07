@@ -19,6 +19,7 @@ public static class StartupExtensions
         builder.Services.AddSingleton(TimeProvider.System);
 
         builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<ProductExceptionHandler>();
 
         return builder;
     }
@@ -29,6 +30,12 @@ public static class StartupExtensions
         app.UseSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/openapi/v1.json", "v1");
+        });
+        
+        // Map domain exceptions to corresponding status codes.
+        app.UseExceptionHandler(new ExceptionHandlerOptions
+        {
+            AllowStatusCode404Response = true
         });
 
         if (!app.Environment.IsDevelopment())
@@ -43,6 +50,8 @@ public static class StartupExtensions
 
     private static WebApplication MapProductEndpoints(this WebApplication app)
     {
+        var group = app.MapGroup("/products");
+        
         app.MapPost("/products",
             async ([FromServices] ProductService productService, CancellationToken cancellationToken,
                 CreateProductRequest createProductRequest) => await productService.AddProduct(
