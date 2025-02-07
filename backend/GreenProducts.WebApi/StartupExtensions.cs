@@ -37,12 +37,9 @@ public static class StartupExtensions
         {
             options.SwaggerEndpoint("/openapi/v1.json", "v1");
         });
-
-        // Map domain exceptions to corresponding status codes.
-        app.UseExceptionHandler(new ExceptionHandlerOptions
-        {
-            AllowStatusCode404Response = true
-        });
+        
+        app.UseExceptionHandler();
+        app.UseStatusCodePages();
 
         if (!app.Environment.IsDevelopment())
         {
