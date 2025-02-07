@@ -16,12 +16,14 @@ public static class StartupExtensions
     {
         builder.Services.AddCors(options =>
         {
+            // This is obviously a bad policy, but this will only run on localhost anyway
             options.AddPolicy(name: options.DefaultPolicyName,
                 policy =>
                 {
                     policy
                         .AllowAnyOrigin()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
                 });
         });
         

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useProducts() {
   return useQuery({
@@ -8,6 +8,55 @@ export function useProducts() {
       return await response.json() as PaginatedResponse<Product>;
     },
   })
+}
+
+export type CreateProductRequest = {
+  name: string,
+  productTypeId: string,
+  colourIds: string[]
+}
+
+export type ProblemDetails = {
+  type?: string; // A URI reference that identifies the problem type
+  title?: string; // A short, human-readable title
+  status?: number; // The HTTP status code
+  detail?: string; // A detailed explanation of the problem
+  instance?: string; // A URI reference to the specific problem occurrence
+  [key: string]: unknown; // Allows additional properties for extended information
+}
+
+
+export function useProductMutation(options: {
+  onSuccess?: (product: Product) => Promise<void>,
+  onFailure?: (request: CreateProductRequest, problemDetails: ProblemDetails) => Promise<void>
+  onError?: (request: CreateProductRequest, message: string) => Promise<void>
+}) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (request: CreateProductRequest) => {
+      const response = await fetch("http://localhost:5068/products", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request)
+      })
+      return { json: await response.json(), ok: response.ok };
+    },
+    onSuccess: async ({json, ok}, request) => {
+      if (ok) {
+        queryClient.invalidateQueries({queryKey: ["products"]});
+        if (options.onSuccess) await options.onSuccess(json as Product);
+      }
+      else {
+        if (options.onFailure) await options.onFailure(request, json as ProblemDetails)
+      }
+    },
+    onError: async ({ message }, request) => {
+      if (options.onError) await options.onError(request, message);
+    },
+  })
+
+  return mutation
 }
 
 export function useProductAttributes() {

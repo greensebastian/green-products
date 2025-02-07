@@ -1,20 +1,24 @@
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import "./App.css";
-import { ProductAttribute, useProductAttributes } from "./products/product";
+import { useProducts } from "./products/product";
 
-const productAttributeColumnHelper = createColumnHelper<ProductAttribute>()
+const productAttributeColumnHelper = createColumnHelper<ProductRow>()
 
 const productAttributeColumns = [
-  productAttributeColumnHelper.accessor(row => row.type, {
-    id: "type",
+  productAttributeColumnHelper.accessor(row => row.name, {
+    id: "name",
     cell: info => info.getValue(),
-    header: () => "Type"
+    header: () => "Name",
   }),
-  productAttributeColumnHelper.accessor(row => row.displayName, {
-    id: "displayName",
+  productAttributeColumnHelper.accessor(row => row.productType, {
+    id: "productType",
     cell: info => info.getValue(),
-    header: () => "DisplayName",
+    header: () => "Product Type",
   }),
+  productAttributeColumnHelper.accessor(row => row.availableColours, {
+    id: "availableColours",
+    cell: info => info.getValue(),
+    header: () => "Available Colours",
+  })
 ]
 
 type ProductRow = {
@@ -25,19 +29,26 @@ type ProductRow = {
 }
 
 function ProductsTables() {
-  const productAttributesQuery = useProductAttributes();
-  const productAttributesTable = useReactTable({
-    data: productAttributesQuery.data?.items || [],
+  const productsQuery = useProducts();
+  const productsTable = useReactTable({
+    data: productsQuery.data?.items.map(p => {
+      return {
+        name: p.name,
+        productType: p.productType.displayName,
+        availableColours: p.availableColours.map(pc => pc.displayName).join(', '),
+        createdOn: p.createdOn
+      }
+     }) || [],
     columns: productAttributeColumns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
-      <div className="p-2">
-      <table>
+      <div>
+      <table className="table-auto w-full">
         <thead>
-          {productAttributesTable.getHeaderGroups().map(headerGroup => (
+          {productsTable.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 <th key={header.id}>
@@ -53,7 +64,7 @@ function ProductsTables() {
           ))}
         </thead>
         <tbody>
-          {productAttributesTable.getRowModel().rows.map(row => (
+          {productsTable.getRowModel().rows.map(row => (
             <tr key={row.id}>
               {row.getVisibleCells().map(cell => (
                 <td key={cell.id}>
