@@ -37,7 +37,7 @@ public static class StartupExtensions
         {
             options.SwaggerEndpoint("/openapi/v1.json", "v1");
         });
-        
+
         // Map domain exceptions to corresponding status codes.
         app.UseExceptionHandler(new ExceptionHandlerOptions
         {
@@ -71,16 +71,16 @@ public static class StartupExtensions
             async ([FromServices] ProductService productService, CancellationToken cancellationToken, Guid id) =>
             await productService.GetProductDetails(id, cancellationToken));
 
-        app.MapGet("/products/classifications",
+        app.MapGet("/products/attributes",
             async ([FromServices] ProductService productService, CancellationToken cancellationToken, int page = 1,
                     int pageSize = 10) =>
-                await productService.GetProductClassifications(page, pageSize, cancellationToken));
+                await productService.GetProductAttributes(page, pageSize, cancellationToken));
 
         return app;
     }
 
     /// <summary>
-    /// Creates a /seed endpoint to populate database with classifications to use when creating products.
+    /// Creates a /seed endpoint to populate database with attributes to use when creating products.
     /// Would not expose publicly in a regular application, only used here for simplicity in testing and showing work.
     /// </summary>
     /// <param name="app">WebApplication instance to map the /seed endpoint to</param>
@@ -90,16 +90,16 @@ public static class StartupExtensions
         app.MapPut("/seed",
             async ([FromServices] GreenProductsDbContext context, [FromServices] TimeProvider timeProvider, CancellationToken cancellationToken) =>
             {
-                foreach (var classification in ProductClassificationsSeed.Classifications)
+                foreach (var attribute in ProductAttributesSeed.Attributes)
                 {
-                    var existingClassification = await context.ProductClassifications.SingleOrDefaultAsync(pc => pc.Id == classification.Id, cancellationToken);
-                    if (existingClassification is not null)
+                    var existingAttribute = await context.ProductAttributes.SingleOrDefaultAsync(pc => pc.Id == attribute.Id, cancellationToken);
+                    if (existingAttribute is not null)
                     {
-                        context.ProductClassifications.Update(existingClassification);
+                        context.ProductAttributes.Update(existingAttribute);
                     }
                     else
                     {
-                        context.ProductClassifications.Add(classification);
+                        context.ProductAttributes.Add(attribute);
                     }
                 }
                 await context.SaveChangesAsync(cancellationToken);

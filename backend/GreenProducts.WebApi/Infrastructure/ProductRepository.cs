@@ -35,16 +35,16 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
         return Task.FromResult(product);
     }
 
-    public async Task<PaginatedResponse<ProductClassification>> GetProductClassifications(int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<PaginatedResponse<ProductAttribute>> GetProductAttributes(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var totalCount = await context.ProductClassifications.CountAsync(cancellationToken);
-        var resultItems = await context.ProductClassifications
-            .OrderBy(productClassification => productClassification.CreatedOn)
+        var totalCount = await context.ProductAttributes.CountAsync(cancellationToken);
+        var resultItems = await context.ProductAttributes
+            .OrderBy(productAttribute => productAttribute.CreatedOn)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new PaginatedResponse<ProductClassification>
+        return new PaginatedResponse<ProductAttribute>
         {
             Items = resultItems,
             Page = page,
@@ -53,16 +53,9 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
         };
     }
 
-    public async Task<IEnumerable<ProductClassification>> GetProductClassificationDetails(ICollection<Guid> ids, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ProductAttribute>> GetProductAttributeDetails(ICollection<Guid> ids, CancellationToken cancellationToken = default)
     {
-        return await context.ProductClassifications.Where(productClassification => ids.Contains(productClassification.Id)).ToListAsync(cancellationToken);
-    }
-
-    public Task<ProductClassification> AddProductClassification(ProductClassification productClassification,
-        CancellationToken cancellationToken = default)
-    {
-        context.ProductClassifications.Add(productClassification);
-        return Task.FromResult(productClassification);
+        return await context.ProductAttributes.Where(productAttribute => ids.Contains(productAttribute.Id)).ToListAsync(cancellationToken);
     }
 
     public async Task Save(CancellationToken cancellationToken = default)

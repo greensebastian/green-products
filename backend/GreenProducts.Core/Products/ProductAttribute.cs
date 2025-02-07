@@ -1,14 +1,12 @@
-﻿using System.Collections;
-
-namespace GreenProducts.Core.Products;
+﻿namespace GreenProducts.Core.Products;
 
 /// <summary>
-/// A classification is a value with a display name that falls within some specific grouping/category.
+/// An attribute is a value with a display name that falls within some specific grouping/category.
 /// Examples are:
 /// Type: Colour, Value: GREEN, DisplayName: Green
 /// Type: ProductType, Value: CHAIR, DisplayName: Chair
 /// </summary>
-public class ProductClassification
+public class ProductAttribute
 {
     public required Guid Id { get; init; }
     public required string Type { get; set; }

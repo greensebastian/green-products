@@ -27,29 +27,29 @@ public class WebApiTests(HostFixture hostFixture)
         // Arrange
 
         // Act
-        var response = await TestClient.GetFromJsonAsync<PaginatedResponse<ProductClassification>>("/products/classifications?pageSize=1000");
+        var response = await TestClient.GetFromJsonAsync<PaginatedResponse<ProductAttribute>>("/products/attributes?pageSize=1000");
 
         // Assert
         response.ShouldNotBeNull();
-        response.Items.ShouldNotBeEmpty("Database should be seeded with classifications");
+        response.Items.ShouldNotBeEmpty("Database should be seeded with attributes");
     }
 
     [Fact]
     public async Task Application_CreateValidProduct_IsCreated()
     {
         // Arrange
-        var productTypeId = Guid.Parse(ProductClassificationsSeed.Ids.Chair);
+        var productTypeId = Guid.Parse(ProductAttributesSeed.Ids.Chair);
         var colourIds = new[]
-            { Guid.Parse(ProductClassificationsSeed.Ids.Yellow), Guid.Parse(ProductClassificationsSeed.Ids.Navy) };
+            { Guid.Parse(ProductAttributesSeed.Ids.Yellow), Guid.Parse(ProductAttributesSeed.Ids.Navy) };
         var request = new CreateProductRequest("LANDSKRONA", productTypeId, colourIds);
 
         // Act
         var response = await TestClient.PostAsJsonAsync("/products", request);
         var product = await response.Content.ReadFromJsonAsync<Product>();
-        
+
         var queryResponse = await TestClient.GetAsync($"/products");
         var queryProduct = (await queryResponse.Content.ReadFromJsonAsync<PaginatedResponse<Product>>())!.Items.Single(p => p.Id == product!.Id);
-        
+
         var getByIdResponse = await TestClient.GetAsync($"/products/{queryProduct.Id}");
         var getByIdProduct = await getByIdResponse.Content.ReadFromJsonAsync<Product>();
 
@@ -58,17 +58,17 @@ public class WebApiTests(HostFixture hostFixture)
         product.Name.ShouldBe("LANDSKRONA");
         product.ProductType.Id.ShouldBe(productTypeId);
         product.AvailableColours.Select(pc => pc.Id).ShouldBeEquivalentToUnordered(colourIds);
-        
+
         queryProduct.ShouldBeEquivalentTo(product);
         getByIdProduct.ShouldBeEquivalentTo(product);
     }
-    
+
     [Theory]
     [InlineData("00000000-0000-0000-0000-000000000000", "", 400)]
-    [InlineData(ProductClassificationsSeed.Ids.Chair, "", 400)]
-    [InlineData(ProductClassificationsSeed.Ids.Chair, ProductClassificationsSeed.Ids.Chair, 400)]
-    [InlineData(ProductClassificationsSeed.Ids.Chair, $"{ProductClassificationsSeed.Ids.Chair},{ProductClassificationsSeed.Ids.Yellow}", 400)]
-    [InlineData(ProductClassificationsSeed.Ids.Yellow, ProductClassificationsSeed.Ids.Yellow, 400)]
+    [InlineData(ProductAttributesSeed.Ids.Chair, "", 400)]
+    [InlineData(ProductAttributesSeed.Ids.Chair, ProductAttributesSeed.Ids.Chair, 400)]
+    [InlineData(ProductAttributesSeed.Ids.Chair, $"{ProductAttributesSeed.Ids.Chair},{ProductAttributesSeed.Ids.Yellow}", 400)]
+    [InlineData(ProductAttributesSeed.Ids.Yellow, ProductAttributesSeed.Ids.Yellow, 400)]
     public async Task Application_CreateInvalidProduct_ReturnsCorrectStatusCodeAndProblemDetails(string serializedProductTypeId, string commaSeparatedColourIds, int expectedStatusCode)
     {
         // Arrange
@@ -84,12 +84,12 @@ public class WebApiTests(HostFixture hostFixture)
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(expectedStatusCode);
     }
-    
+
     [Fact]
     public async Task Application_GetMissingProduct_Returns404()
     {
         // Arrange
-        
+
         // Act
         var response = await TestClient.GetAsync("/products/00000000-0000-0000-0000-000000000000");
         var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
@@ -99,12 +99,12 @@ public class WebApiTests(HostFixture hostFixture)
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(404);
     }
-    
+
     [Fact]
     public async Task Application_GetNonGuidProductId_Returns400()
     {
         // Arrange
-        
+
         // Act
         var response = await TestClient.GetAsync("/products/not-a-guid");
         var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
@@ -114,14 +114,14 @@ public class WebApiTests(HostFixture hostFixture)
         problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(400);
     }
-    
+
     [Fact]
     public async Task Application_GetProducts_PaginationWorks()
     {
         // Arrange
-        var productTypeId = Guid.Parse(ProductClassificationsSeed.Ids.Chair);
+        var productTypeId = Guid.Parse(ProductAttributesSeed.Ids.Chair);
         var colourIds = new[]
-            { Guid.Parse(ProductClassificationsSeed.Ids.Yellow), Guid.Parse(ProductClassificationsSeed.Ids.Navy) };
+            { Guid.Parse(ProductAttributesSeed.Ids.Yellow), Guid.Parse(ProductAttributesSeed.Ids.Navy) };
 
         for (var i = 0; i < 15; i++)
         {
@@ -131,7 +131,7 @@ public class WebApiTests(HostFixture hostFixture)
         // Act
         var firstPageResponse = await TestClient.GetAsync("/products?page=1&pageSize=4");
         var firstPageProducts = await firstPageResponse.Content.ReadFromJsonAsync<PaginatedResponse<Product>>();
-        
+
         var secondPageResponse = await TestClient.GetAsync("/products?page=2&pageSize=4");
         var secondPageProducts = await secondPageResponse.Content.ReadFromJsonAsync<PaginatedResponse<Product>>();
 
@@ -140,12 +140,12 @@ public class WebApiTests(HostFixture hostFixture)
         firstPageProducts.Items.Count.ShouldBe(4);
         firstPageProducts.Page.ShouldBe(1);
         firstPageProducts.TotalCount.ShouldBeGreaterThanOrEqualTo(15);
-        
+
         secondPageProducts.ShouldNotBeNull();
         secondPageProducts.Items.Count.ShouldBe(4);
         secondPageProducts.Page.ShouldBe(2);
         secondPageProducts.TotalCount.ShouldBeGreaterThanOrEqualTo(15);
-        
+
         firstPageProducts.Items
             .Concat(secondPageProducts.Items)
             .Select(p => p.Id)

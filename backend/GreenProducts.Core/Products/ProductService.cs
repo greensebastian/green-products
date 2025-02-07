@@ -31,21 +31,21 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     /// Adds the given product to the catalogue
     /// </summary>
     /// <param name="name">Name of product</param>
-    /// <param name="productTypeId">Id of classification corresponding to product type</param>
-    /// <param name="colourIds">Ids of classifications corresponding to available colours for this product</param>
+    /// <param name="productTypeId">Id of attribute corresponding to product type</param>
+    /// <param name="colourIds">Ids of attributes corresponding to available colours for this product</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Created product</returns>
     public async Task<Product> AddProduct(string name, Guid productTypeId, ICollection<Guid> colourIds, CancellationToken cancellationToken = default)
     {
-        var colourClassifications = await GetNotEmptyProductClassificationDetails(ProductClassification.Types.Colour, colourIds, cancellationToken);
-        var productTypeClassification = (await GetNotEmptyProductClassificationDetails(ProductClassification.Types.ProductType, [productTypeId], cancellationToken)).Single();
+        var colourAttributes = await GetNotEmptyProductAttributeDetails(ProductAttribute.Types.Colour, colourIds, cancellationToken);
+        var productTypeAttribute = (await GetNotEmptyProductAttributeDetails(ProductAttribute.Types.ProductType, [productTypeId], cancellationToken)).Single();
 
         var product = new Product
         {
             Id = Guid.NewGuid(),
             Name = name,
-            ProductType = productTypeClassification,
-            AvailableColours = colourClassifications.ToList(),
+            ProductType = productTypeAttribute,
+            AvailableColours = colourAttributes.ToList(),
             CreatedOn = timeProvider.GetUtcNow().Truncate(TimeSpan.TicksPerMillisecond)
         };
 
@@ -55,40 +55,40 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     }
 
     /// <summary>
-    /// Get paginated list of product classifications in the catalogue.
+    /// Get paginated list of product attributes in the catalogue.
     /// </summary>
     /// <param name="page">Page to fetch, index starts at 1</param>
     /// <param name="pageSize">Number of items per page</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Paginated list of product classifications in the catalogue</returns>
-    public async Task<PaginatedResponse<ProductClassification>> GetProductClassifications(int page = 1, int pageSize = 10,
+    /// <returns>Paginated list of product attributes in the catalogue</returns>
+    public async Task<PaginatedResponse<ProductAttribute>> GetProductAttributes(int page = 1, int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        return await productRepository.GetProductClassifications(page, pageSize, cancellationToken);
+        return await productRepository.GetProductAttributes(page, pageSize, cancellationToken);
     }
 
     /// <summary>
-    /// Helper method to fetch and validate classifications against desired type.
+    /// Helper method to fetch and validate attributes against desired type.
     /// </summary>
-    /// <returns>Collection of fetched classifications</returns>
+    /// <returns>Collection of fetched attributes</returns>
     /// <exception cref="ProductValidationException">Exception if requested ids don't exist, or they are of incorrect type</exception>
-    private async Task<ICollection<ProductClassification>> GetNotEmptyProductClassificationDetails(string desiredType, ICollection<Guid> classificationIds, CancellationToken cancellationToken = default)
+    private async Task<ICollection<ProductAttribute>> GetNotEmptyProductAttributeDetails(string desiredType, ICollection<Guid> attributeIds, CancellationToken cancellationToken = default)
     {
-        var classifications = (await productRepository.GetProductClassificationDetails(classificationIds, cancellationToken)).ToArray();
+        var attributes = (await productRepository.GetProductAttributeDetails(attributeIds, cancellationToken)).ToArray();
 
-        if (!classifications.Any())
+        if (!attributes.Any())
         {
-            throw new ProductValidationException($"Query for classifications [{string.Join(", ", classificationIds)}] of type {desiredType} returned no classifications");
+            throw new ProductValidationException($"Query for attribute [{string.Join(", ", attributeIds)}] of type {desiredType} returned no attributes");
         }
 
-        var invalidClassifications = classificationIds
-            .Select(classificationId => new { Id = classificationId, Classification = classifications.SingleOrDefault(classification => classification.Id == classificationId) })
-            .Where(match => match.Classification is null || match.Classification.Type != desiredType).ToArray();
-        if (invalidClassifications.Any())
+        var invalidAttributes = attributeIds
+            .Select(attributeId => new { Id = attributeId, Attribute = attributes.SingleOrDefault(attribute => attribute.Id == attributeId) })
+            .Where(match => match.Attribute is null || match.Attribute.Type != desiredType).ToArray();
+        if (invalidAttributes.Any())
         {
-            throw new ProductValidationException($"Classifications [{string.Join(", ", invalidClassifications.Select(c => c.Id))}] do not exist or do not match type {desiredType}");
+            throw new ProductValidationException($"Attributes [{string.Join(", ", invalidAttributes.Select(c => c.Id))}] do not exist or do not match type {desiredType}");
         }
 
-        return classifications;
+        return attributes;
     }
 }

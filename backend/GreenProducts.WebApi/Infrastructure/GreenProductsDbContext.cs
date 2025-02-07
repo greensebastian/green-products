@@ -6,7 +6,7 @@ namespace GreenProducts.WebApi.Infrastructure;
 public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> options) : DbContext(options)
 {
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductClassification> ProductClassifications { get; set; }
+    public DbSet<ProductAttribute> ProductAttributes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,10 +22,10 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
         productModel.Navigation(product => product.ProductType).AutoInclude();
         productModel.Navigation(product => product.AvailableColours).AutoInclude();
 
-        var productClassificationModel = modelBuilder.Entity<ProductClassification>();
-        productClassificationModel.HasKey(productClassification => productClassification.Id);
-        productClassificationModel.HasIndex(productClassification => productClassification.Type);
-        productClassificationModel.HasIndex(productClassification => new { productClassification.Type, productClassification.Value });
-        productClassificationModel.HasIndex(productClassification => productClassification.CreatedOn);
+        var productAttributeModel = modelBuilder.Entity<ProductAttribute>();
+        productAttributeModel.HasKey(productAttribute => productAttribute.Id);
+        productAttributeModel.HasIndex(productAttribute => productAttribute.Type);
+        productAttributeModel.HasIndex(productAttribute => new { productAttribute.Type, productAttribute.Value });
+        productAttributeModel.HasIndex(productAttribute => productAttribute.CreatedOn);
     }
 }

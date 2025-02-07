@@ -3,9 +3,9 @@
 namespace GreenProducts.WebApi.Infrastructure;
 
 /// <summary>
-/// Special class just to seed some classifications (colurs, product types)
+/// Special class just to seed some attributes (colours, product types)
 /// </summary>
-public static class ProductClassificationsSeed
+public static class ProductAttributesSeed
 {
     public static class Ids
     {
@@ -17,12 +17,12 @@ public static class ProductClassificationsSeed
         public const string Yellow = "0f2b7812-766a-41f9-a928-b6c259706d7f";
     }
 
-    public static List<ProductClassification> Classifications { get; } = new()
+    public static List<ProductAttribute> Attributes { get; } = new()
     {
         new()
         {
             Id = Guid.Parse(Ids.Chair),
-            Type = ProductClassification.Types.ProductType,
+            Type = ProductAttribute.Types.ProductType,
             Value = "CHAIR",
             DisplayName = "Chair",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")
@@ -30,7 +30,7 @@ public static class ProductClassificationsSeed
         new()
         {
             Id = Guid.Parse(Ids.Plant),
-            Type = ProductClassification.Types.ProductType,
+            Type = ProductAttribute.Types.ProductType,
             Value = "PLANT",
             DisplayName = "Plant",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")
@@ -38,7 +38,7 @@ public static class ProductClassificationsSeed
         new()
         {
             Id = Guid.Parse(Ids.Decoration),
-            Type = ProductClassification.Types.ProductType,
+            Type = ProductAttribute.Types.ProductType,
             Value = "DECORATION",
             DisplayName = "Decoration",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")
@@ -46,7 +46,7 @@ public static class ProductClassificationsSeed
         new()
         {
             Id = Guid.Parse(Ids.Birch),
-            Type = ProductClassification.Types.Colour,
+            Type = ProductAttribute.Types.Colour,
             Value = "BIRCH",
             DisplayName = "Birch tree",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")
@@ -54,7 +54,7 @@ public static class ProductClassificationsSeed
         new()
         {
             Id = Guid.Parse(Ids.Navy),
-            Type = ProductClassification.Types.Colour,
+            Type = ProductAttribute.Types.Colour,
             Value = "NAVY",
             DisplayName = "Navy blue",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")
@@ -62,7 +62,7 @@ public static class ProductClassificationsSeed
         new()
         {
             Id = Guid.Parse(Ids.Yellow),
-            Type = ProductClassification.Types.Colour,
+            Type = ProductAttribute.Types.Colour,
             Value = "YELLOW",
             DisplayName = "Yellow",
             CreatedOn = DateTimeOffset.Parse("2025-02-07T11:00:00Z")

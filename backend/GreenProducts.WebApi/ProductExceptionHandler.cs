@@ -31,7 +31,7 @@ public class ProductExceptionHandler(IProblemDetailsService problemDetailsServic
         var details = string.IsNullOrWhiteSpace(exception.InnerException?.Message)
             ? exception.Message
             : $"{exception.Message} {exception.InnerException.Message}";
-        
+
         var problemDetails = new ProblemDetails
         {
             Status = statusCode,

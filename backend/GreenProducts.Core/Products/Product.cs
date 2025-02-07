@@ -7,7 +7,7 @@ public class Product
 {
     public required Guid Id { get; init; }
     public required string Name { get; set; }
-    public required ProductClassification ProductType { get; set; }
-    public required List<ProductClassification> AvailableColours { get; set; }
+    public required ProductAttribute ProductType { get; set; }
+    public required List<ProductAttribute> AvailableColours { get; set; }
     public required DateTimeOffset CreatedOn { get; init; }
 }
