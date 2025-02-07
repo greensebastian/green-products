@@ -12,17 +12,39 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: green_products
   
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    container_name: pgadmin
+#    restart: unless-stopped
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: admin
+#    ports:
+#      - "5050:80"
+#    depends_on:
+#      - postgres
+
+  frontend:
+    container_name: frontend
     restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:80"
+      - 8081:8081
+    build:
+      context: frontend
     depends_on:
+      - backend
+
+  backend:
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - 5068:8080
+    build:
+      context: backend
+    depends_on: 
       - postgres
+    environment:
+      ConnectionStrings__GreenProductsDbContext: "Server=postgres;Port=5432;Database=green_products;User Id=postgres;Password=password;"
 
 volumes:
   postgres:

@@ -5,12 +5,15 @@ ARG TARGETARCH
 WORKDIR /source
 
 # Copy project file and restore as distinct layers
-COPY --link GreenProducts.WebApi/*.csproj .
-RUN dotnet restore -a $TARGETARCH
+COPY --link ./GreenProducts.Core/GreenProducts.Core.csproj ./GreenProducts.Core/.
+RUN dotnet restore ./GreenProducts.Core -a $TARGETARCH
+
+COPY --link ./GreenProducts.WebApi/GreenProducts.WebApi.csproj ./GreenProducts.WebApi/.
+RUN dotnet restore ./GreenProducts.WebApi -a $TARGETARCH
 
 # Copy source code and publish app
-COPY --link GreenProducts.WebApi/. .
-RUN dotnet publish -a $TARGETARCH --no-restore -o /app
+COPY --link . .
+RUN dotnet publish ./GreenProducts.WebApi -a $TARGETARCH --no-restore -o /app
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
