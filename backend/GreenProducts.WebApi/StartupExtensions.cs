@@ -14,6 +14,17 @@ public static class StartupExtensions
 {
     public static WebApplicationBuilder AddGreenProducts(this WebApplicationBuilder builder)
     {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: options.DefaultPolicyName,
+                policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod();
+                });
+        });
+        
         builder.Services.AddOpenApi();
 
         builder.Services.AddDbContextPool<GreenProductsDbContext>(opt =>
@@ -32,6 +43,7 @@ public static class StartupExtensions
 
     public static WebApplication AddGreenProducts(this WebApplication app)
     {
+        app.UseCors();
         app.MapOpenApi();
         app.UseSwaggerUI(options =>
         {
