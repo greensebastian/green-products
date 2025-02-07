@@ -10,7 +10,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
     {
         var totalCount = await context.Products.CountAsync(cancellationToken);
         var resultItems = await context.Products
-            .OrderBy(product => product.CreatedOn)
+            .OrderByDescending(product => product.CreatedOn)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -44,7 +44,7 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
     {
         var totalCount = await context.ProductAttributes.CountAsync(cancellationToken);
         var resultItems = await context.ProductAttributes
-            .OrderBy(productAttribute => productAttribute.CreatedOn)
+            .OrderByDescending(productAttribute => productAttribute.CreatedOn)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

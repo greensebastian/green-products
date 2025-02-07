@@ -1,44 +1,31 @@
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useProducts } from "./products/product";
+import { ProductAttribute, useProductAttributes } from "../products/product";
+import { BarLoader } from "react-spinners";
 
-const productAttributeColumnHelper = createColumnHelper<ProductRow>()
+const productAttributeColumnHelper = createColumnHelper<ProductAttribute>()
 
 const productAttributeColumns = [
-  productAttributeColumnHelper.accessor(row => row.name, {
-    id: "name",
+  productAttributeColumnHelper.accessor(row => row.type, {
+    id: "type",
     cell: info => info.getValue(),
-    header: () => "Name",
+    header: () => "Type",
   }),
-  productAttributeColumnHelper.accessor(row => row.productType, {
-    id: "productType",
+  productAttributeColumnHelper.accessor(row => row.displayName, {
+    id: "displayName",
     cell: info => info.getValue(),
-    header: () => "Product Type",
+    header: () => "Display Name",
   }),
-  productAttributeColumnHelper.accessor(row => row.availableColours, {
-    id: "availableColours",
+  productAttributeColumnHelper.accessor(row => row.id, {
+    id: "id",
     cell: info => info.getValue(),
-    header: () => "Available Colours",
+    header: () => "Id",
   })
 ]
 
-type ProductRow = {
-  name: string;
-  productType: string;
-  availableColours: string;
-  createdOn: string;
-}
-
-function ProductsTables() {
-  const productsQuery = useProducts();
-  const productsTable = useReactTable({
-    data: productsQuery.data?.items.map(p => {
-      return {
-        name: p.name,
-        productType: p.productType.displayName,
-        availableColours: p.availableColours.map(pc => pc.displayName).join(', '),
-        createdOn: p.createdOn
-      }
-     }) || [],
+function ProductAttributesTable() {
+  const productAttributesQuery = useProductAttributes();
+  const productAttributesTable = useReactTable({
+    data: productAttributesQuery.data?.items || [],
     columns: productAttributeColumns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -46,9 +33,10 @@ function ProductsTables() {
   return (
     <>
       <div>
+      <BarLoader loading={productAttributesQuery.isPending} width="100%" speedMultiplier={0.5} color="oklch(0.623 0.214 259.815)" className="my-2" />
       <table className="table-auto w-full">
         <thead>
-          {productsTable.getHeaderGroups().map(headerGroup => (
+          {productAttributesTable.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 <th key={header.id}>
@@ -64,7 +52,7 @@ function ProductsTables() {
           ))}
         </thead>
         <tbody>
-          {productsTable.getRowModel().rows.map(row => (
+          {productAttributesTable.getRowModel().rows.map(row => (
             <tr key={row.id}>
               {row.getVisibleCells().map(cell => (
                 <td key={cell.id}>
@@ -80,4 +68,4 @@ function ProductsTables() {
   );
 }
 
-export default ProductsTables;
+export default ProductAttributesTable;

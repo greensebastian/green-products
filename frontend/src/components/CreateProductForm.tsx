@@ -1,17 +1,21 @@
-import toast, { Toaster } from "react-hot-toast";
-import { useProductMutation } from "./products/product";
+import toast, { Toaster, ToastOptions } from "react-hot-toast";
+import { useProductMutation } from "../products/product";
 
+const toasterOptions: ToastOptions = {
+  duration: 5000,
+  className: "!max-w-3xl my-1",
+}
 
 function CreateProductForm() {
   const mutation = useProductMutation({
     onSuccess: async (product) => {
-      toast.success(`Product ${product.name} added successfully! 🎉`)
+      toast.success(`Product ${product.name} added successfully! 🎉`, toasterOptions)
     },
     onFailure: async (request, problemDetails) => {
-      toast.error(`Failed to add product ${request.name}. Error [${problemDetails.status}]: ${problemDetails.title} ${problemDetails.detail}`)
+      toast.error(`Failed to add product ${request.name}.\n\nError [${problemDetails.status}],\n${problemDetails.title}\n${problemDetails.detail}`, {...toasterOptions, duration: 10000})
     },
     onError: async (request, message) => {
-      toast.error(`Failed to add product ${request.name}. Error: ${message}`)
+      toast.error(`Failed to add product ${request.name}.\n\nError: ${message}`, {...toasterOptions, duration: 10000})
     }
   });
 
@@ -25,7 +29,7 @@ function CreateProductForm() {
   };
   return (
     <>
-       <Toaster position="top-right" reverseOrder={false} />
+       <Toaster position="top-right" reverseOrder={false}/>
       
       <form onSubmit={handleSubmit}>
         <input
@@ -45,7 +49,7 @@ function CreateProductForm() {
         />
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded w-full"
+          className="bg-blue-500 text-white px-4 py-2 rounded w-full disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={mutation.isPending}
         >
           {mutation.isPending ? "Creating..." : "Create product"}
