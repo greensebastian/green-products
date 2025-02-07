@@ -12,7 +12,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
       <NavigationBar />
         <div className="flex justify-center min-h-screen bg-gray-100 p-4">
-          <div className="space-y-4 w-full max-w-3xl text-left">
+          <div className="space-y-4 w-full max-w-7xl text-left">
             <Routes>
               <Route path="/" element={<Products />} />
               <Route path="/create-product" element={<CreateProduct />} />

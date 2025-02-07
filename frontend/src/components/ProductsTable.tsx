@@ -5,6 +5,11 @@ import { BarLoader } from "react-spinners";
 const productAttributeColumnHelper = createColumnHelper<ProductRow>()
 
 const productAttributeColumns = [
+  productAttributeColumnHelper.accessor(row => row.id, {
+    id: "id",
+    cell: info => info.getValue(),
+    header: () => "Id",
+  }),
   productAttributeColumnHelper.accessor(row => row.name, {
     id: "name",
     cell: info => info.getValue(),
@@ -19,10 +24,16 @@ const productAttributeColumns = [
     id: "availableColours",
     cell: info => info.getValue(),
     header: () => "Available Colours",
+  }),
+  productAttributeColumnHelper.accessor(row => row.createdOn, {
+    id: "createdOn",
+    cell: info => info.getValue(),
+    header: () => "Created On",
   })
 ]
 
 type ProductRow = {
+  id: string;
   name: string;
   productType: string;
   availableColours: string;
@@ -34,6 +45,7 @@ function ProductsTables() {
   const productsTable = useReactTable({
     data: productsQuery.data?.items.map(p => {
       return {
+        id: p.id,
         name: p.name,
         productType: p.productType.displayName,
         availableColours: p.availableColours.map(pc => pc.displayName).join(', '),
@@ -46,7 +58,7 @@ function ProductsTables() {
 
   return (
     <>
-      <div>
+      <div className="mt-2">
       <BarLoader loading={productsQuery.isPending || productsQuery.isRefetching} width="100%" speedMultiplier={0.5} color="oklch(0.623 0.214 259.815)" className="my-2" />
       <table className="table-auto w-full">
         <thead>
