@@ -37,6 +37,9 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
     /// <returns>Created product</returns>
     public async Task<Product> AddProduct(string name, Guid productTypeId, ICollection<Guid> colourIds, CancellationToken cancellationToken = default)
     {
+        if (await productRepository.ProductExists(name, cancellationToken))
+            throw new ProductValidationException($"Product with name {name} already exists");
+        
         var colourAttributes = await GetNotEmptyProductAttributeDetails(ProductAttribute.Types.Colour, colourIds, cancellationToken);
         var productTypeAttribute = (await GetNotEmptyProductAttributeDetails(ProductAttribute.Types.ProductType, [productTypeId], cancellationToken)).Single();
 
@@ -46,9 +49,9 @@ public class ProductService(IProductRepository productRepository, TimeProvider t
             Name = name,
             ProductType = productTypeAttribute,
             AvailableColours = colourAttributes.ToList(),
-            CreatedOn = timeProvider.GetUtcNow().Truncate(TimeSpan.TicksPerMillisecond)
+            CreatedOn = timeProvider.GetUtcNow().Truncate(TimeSpan.TicksPerMicrosecond)
         };
-
+        
         var created = await productRepository.AddProduct(product, cancellationToken);
         await productRepository.Save(cancellationToken);
         return created;

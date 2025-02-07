@@ -153,4 +153,25 @@ public class WebApiTests(HostFixture hostFixture)
             .Count()
             .ShouldBe(8);
     }
+    
+    [Fact]
+    public async Task Application_CreateDuplicateProductName_Returns400()
+    {
+        // Arrange
+        var productTypeId = Guid.Parse(ProductAttributesSeed.Ids.Chair);
+        var colourIds = new[]
+            { Guid.Parse(ProductAttributesSeed.Ids.Yellow), Guid.Parse(ProductAttributesSeed.Ids.Navy) };
+        var request = new CreateProductRequest("DUPLICATE_NAME", productTypeId, colourIds);
+        
+        await TestClient.PostAsJsonAsync("/products", request);
+
+        // Act
+        var duplicateResponse = await TestClient.PostAsJsonAsync("/products", request);
+        var problemDetails = await duplicateResponse.Content.ReadFromJsonAsync<ProblemDetails>();
+
+        // Assert
+        ((int)duplicateResponse.StatusCode).ShouldBe(400);
+        problemDetails.ShouldNotBeNull();
+        problemDetails.Status.ShouldBe(400);
+    }
 }

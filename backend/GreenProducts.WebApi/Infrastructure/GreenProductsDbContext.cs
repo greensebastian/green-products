@@ -10,9 +10,13 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // There is no limit on length of strings currently, that should be fixed as well.
+        // On-delete behaviour for the many-to-many relationships is also not verified, as there is no delete function
+        
         var productModel = modelBuilder.Entity<Product>();
         productModel.HasKey(product => product.Id);
         productModel.HasIndex(product => product.CreatedOn);
+        productModel.HasAlternateKey(product => product.Name);
         productModel
             .HasOne(product => product.ProductType)
             .WithMany();
@@ -25,7 +29,7 @@ public class GreenProductsDbContext(DbContextOptions<GreenProductsDbContext> opt
         var productAttributeModel = modelBuilder.Entity<ProductAttribute>();
         productAttributeModel.HasKey(productAttribute => productAttribute.Id);
         productAttributeModel.HasIndex(productAttribute => productAttribute.Type);
-        productAttributeModel.HasIndex(productAttribute => new { productAttribute.Type, productAttribute.Value });
+        productAttributeModel.HasAlternateKey(productAttribute => new { productAttribute.Type, productAttribute.Value });
         productAttributeModel.HasIndex(productAttribute => productAttribute.CreatedOn);
     }
 }

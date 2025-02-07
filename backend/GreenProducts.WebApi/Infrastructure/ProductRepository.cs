@@ -29,6 +29,11 @@ public class ProductRepository(GreenProductsDbContext context) : IProductReposit
         return await context.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<bool> ProductExists(string productName, CancellationToken cancellationToken = default)
+    {
+        return await context.Products.AnyAsync(x => x.Name == productName, cancellationToken);
+    }
+
     public Task<Product> AddProduct(Product product, CancellationToken cancellationToken = default)
     {
         context.Products.Add(product);

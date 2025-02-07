@@ -3,6 +3,7 @@ using System;
 using GreenProducts.WebApi.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GreenProducts.WebApi.Migrations
 {
     [DbContext(typeof(GreenProductsDbContext))]
-    partial class GreenProductsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250207110802_UniqueProductName")]
+    partial class UniqueProductName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +43,9 @@ namespace GreenProducts.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Name");
-
                     b.HasIndex("CreatedOn");
+
+                    b.HasIndex("Name");
 
                     b.HasIndex("ProductTypeId");
 
@@ -72,11 +75,11 @@ namespace GreenProducts.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Type", "Value");
-
                     b.HasIndex("CreatedOn");
 
                     b.HasIndex("Type");
+
+                    b.HasIndex("Type", "Value");
 
                     b.ToTable("ProductAttributes");
                 });
