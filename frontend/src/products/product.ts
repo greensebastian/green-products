@@ -25,7 +25,6 @@ export type ProblemDetails = {
   [key: string]: unknown; // Allows additional properties for extended information
 }
 
-
 export function useProductMutation(options: {
   onSuccess?: (product: Product) => Promise<void>,
   onFailure?: (request: CreateProductRequest, problemDetails: ProblemDetails) => Promise<void>
@@ -67,6 +66,31 @@ export function useProductAttributes() {
       return await response.json() as PaginatedResponse<ProductAttribute>;
     },
   })
+}
+
+export function useSeedMutation(options: {
+  onSuccess?: () => Promise<void>,
+  onError?: (message: string) => Promise<void>
+}) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("http://localhost:5068/seed", {
+        method: "PUT"
+      })
+      if (!response.ok) throw new Error("Database seeding failed");
+    },
+    onSuccess: async () => {
+      queryClient.invalidateQueries({queryKey: ["productAttributes"]});
+      if (options.onSuccess) await options.onSuccess();
+    },
+    onError: async ({ message }) => {
+      if (options.onError) await options.onError(message);
+    },
+  })
+
+  return mutation
 }
 
 export type PaginatedResponse<T> = {

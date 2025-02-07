@@ -47,11 +47,8 @@ public static class StartupExtensions
     {
         app.UseCors();
         app.MapOpenApi();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/openapi/v1.json", "v1");
-        });
-        
+        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "v1"); });
+
         app.UseExceptionHandler();
         app.UseStatusCodePages();
 
@@ -88,6 +85,14 @@ public static class StartupExtensions
                 await productService.GetProductAttributes(page, pageSize, cancellationToken));
 
         return app;
+    }
+
+    public static async Task DoDatabaseMigrations(this WebApplication app)
+    {
+        // Apply any migrations to ephemeral database
+        await using var scope = app.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GreenProductsDbContext>();
+        await dbContext.Database.MigrateAsync();
     }
 
     /// <summary>

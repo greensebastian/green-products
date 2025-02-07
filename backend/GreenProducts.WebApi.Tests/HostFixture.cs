@@ -48,10 +48,7 @@ public class HostFixture : IAsyncLifetime
         WebApplication = builder.Build();
         WebApplication.AddGreenProducts();
 
-        // Apply any migrations to ephemeral database
-        await using var scope = WebApplication.Services.CreateAsyncScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<GreenProductsDbContext>();
-        await dbContext.Database.MigrateAsync();
+        await WebApplication.DoDatabaseMigrations();
 
         await WebApplication.StartAsync();
 

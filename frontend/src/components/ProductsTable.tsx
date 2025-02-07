@@ -2,30 +2,30 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "
 import { useProducts } from "../products/product";
 import { BarLoader } from "react-spinners";
 
-const productAttributeColumnHelper = createColumnHelper<ProductRow>()
+const productColumnHelper = createColumnHelper<ProductRow>()
 
-const productAttributeColumns = [
-  productAttributeColumnHelper.accessor(row => row.id, {
+const productColumns = [
+  productColumnHelper.accessor(row => row.id, {
     id: "id",
     cell: info => info.getValue(),
     header: () => "Id",
   }),
-  productAttributeColumnHelper.accessor(row => row.name, {
+  productColumnHelper.accessor(row => row.name, {
     id: "name",
     cell: info => info.getValue(),
     header: () => "Name",
   }),
-  productAttributeColumnHelper.accessor(row => row.productType, {
+  productColumnHelper.accessor(row => row.productType, {
     id: "productType",
     cell: info => info.getValue(),
     header: () => "Product Type",
   }),
-  productAttributeColumnHelper.accessor(row => row.availableColours, {
+  productColumnHelper.accessor(row => row.availableColours, {
     id: "availableColours",
     cell: info => info.getValue(),
     header: () => "Available Colours",
   }),
-  productAttributeColumnHelper.accessor(row => row.createdOn, {
+  productColumnHelper.accessor(row => row.createdOn, {
     id: "createdOn",
     cell: info => info.getValue(),
     header: () => "Created On",
@@ -52,7 +52,7 @@ function ProductsTables() {
         createdOn: p.createdOn
       }
      }) || [],
-    columns: productAttributeColumns,
+    columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 
